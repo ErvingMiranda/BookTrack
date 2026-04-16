@@ -237,25 +237,6 @@ ServicioLibros ..> RepositorioLibros
 ServicioPrestamos ..> RepositorioPrestamos
 ```
 
-## Ejecución local
-
-### Requisitos
-
-JDK 17 o superior.
-
-### Compilar
-
-```bash
-mkdir -p out
-javac -d out $(find src/main/java -name "*.java")
-```
-
-### Ejecutar
-
-```bash
-java -cp out org.booktrack.Main
-```
-
 ### Notas
 
 - Persistencia actual: en memoria (sin base de datos)
