@@ -8,13 +8,16 @@ import org.booktrack.utils.GeneradorId;
 public class Prestamo {
 
     private final String id;
-    private Usuario usuario;
+    private final Usuario usuario;
     private final List<ItemPrestamo> items;
     private boolean devuelto;
 
     public Prestamo(Usuario usuario) {
+        if (usuario == null) {
+            throw new IllegalArgumentException("El usuario es obligatorio");
+        }
         this.id = GeneradorId.generar();
-        setUsuario(usuario);
+        this.usuario = usuario;
         this.items = new ArrayList<>();
         this.devuelto = false;
     }
@@ -25,13 +28,6 @@ public class Prestamo {
 
     public Usuario getUsuario() {
         return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        if (usuario == null) {
-            throw new IllegalArgumentException("El usuario es obligatorio");
-        }
-        this.usuario = usuario;
     }
 
     public void agregarItem(ItemPrestamo item) {

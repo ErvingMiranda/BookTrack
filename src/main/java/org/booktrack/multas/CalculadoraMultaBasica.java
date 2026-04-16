@@ -1,4 +1,4 @@
-package org.booktrack.repository;
+package org.booktrack.multas;
 
 import org.booktrack.interfaces.CalculadoraMulta;
 
