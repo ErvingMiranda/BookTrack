@@ -47,6 +47,25 @@ public class ServicioPrestamos {
     }
 
     public void eliminarPrestamo(String id) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("El id del prestamo es obligatorio");
+        }
+
+        Prestamo prestamo = repositorioPrestamos.buscarPorId(id);
+        if (prestamo == null) {
+            throw new IllegalArgumentException("Prestamo no encontrado");
+        }
+
+        if (!prestamo.isDevuelto()) {
+            for (ItemPrestamo item : prestamo.getItems()) {
+                item.getLibro().setDisponible(true);
+                Libro libroRepositorio = repositorioLibros.buscarPorId(item.getLibro().getId());
+                if (libroRepositorio != null) {
+                    libroRepositorio.setDisponible(true);
+                }
+            }
+        }
+
         repositorioPrestamos.eliminar(id);
     }
 

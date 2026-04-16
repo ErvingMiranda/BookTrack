@@ -9,6 +9,6 @@ public class CalculadoraMultaBasica implements CalculadoraMulta {
         if (diasRetraso <= 0) {
             return 0;
         }
-        return diasRetraso * 5.0;
+        return diasRetraso * 1.0;
     }
 }

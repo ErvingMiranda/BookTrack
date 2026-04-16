@@ -420,7 +420,7 @@ public class MenuConsola {
         String idPrestamo = leerTextoNoVacio("ID del prestamo: ");
         int diasRetraso = leerEntero("Dias de retraso: ");
         double multa = servicioPrestamos.registrarDevolucion(idPrestamo, diasRetraso);
-        System.out.println("Multa calculada: " + multa);
+        System.out.printf("Multa calculada: US$%.2f%n", multa);
     }
 
     private void verReportes() {
@@ -431,7 +431,7 @@ public class MenuConsola {
         System.out.println("\n--- Reportes ---");
         System.out.println("Cantidad de prestamos realizados: " + cantidadPrestamos);
         System.out.println("Cantidad de libros disponibles: " + librosDisponibles);
-        System.out.println("Total de multas generadas: " + totalMultas);
+        System.out.printf("Total de multas generadas: US$%.2f%n", totalMultas);
     }
 
     private int leerEntero(String mensaje) {
@@ -442,18 +442,6 @@ public class MenuConsola {
                 return Integer.parseInt(entrada.trim());
             } catch (NumberFormatException e) {
                 System.out.println("Entrada invalida. Debe ingresar un numero entero.");
-            }
-        }
-    }
-
-    private double leerDouble(String mensaje) {
-        while (true) {
-            System.out.print(mensaje);
-            String entrada = scanner.nextLine();
-            try {
-                return Double.parseDouble(entrada.trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Entrada invalida. Debe ingresar un numero decimal.");
             }
         }
     }
