@@ -8,14 +8,16 @@ public class Libro {
     private String titulo;
     private String autor;
     private String categoria;
-    private boolean disponible;
+    private int stockTotal;
+    private int stockDisponible;
 
-    public Libro(String titulo, String autor, String categoria, boolean disponible) {
+    public Libro(String titulo, String autor, String categoria, int stockTotal) {
         this.id = GeneradorId.generar();
         setTitulo(titulo);
         setAutor(autor);
         setCategoria(categoria);
-        this.disponible = disponible;
+        setStockTotal(stockTotal);
+        this.stockDisponible = stockTotal;
     }
 
     public String getId() {
@@ -55,12 +57,68 @@ public class Libro {
         this.categoria = categoria;
     }
 
-    public boolean isDisponible() {
-        return disponible;
+    public int getStockTotal() {
+        return stockTotal;
     }
 
-    public void setDisponible(boolean disponible) {
-        this.disponible = disponible;
+    public void setStockTotal(int stockTotal) {
+        if (stockTotal <= 0) {
+            throw new IllegalArgumentException("El stock total debe ser mayor que cero");
+        }
+
+        if (this.stockDisponible > stockTotal) {
+            throw new IllegalArgumentException("El stock total no puede ser menor al stock disponible actual");
+        }
+
+        this.stockTotal = stockTotal;
+    }
+
+    public int getStockDisponible() {
+        return stockDisponible;
+    }
+
+    public boolean isDisponible() {
+        return stockDisponible > 0;
+    }
+
+    public void reducirStock(int cantidad) {
+        if (cantidad <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
+        }
+        if (cantidad > stockDisponible) {
+            throw new IllegalArgumentException("No hay suficientes ejemplares disponibles");
+        }
+
+        stockDisponible -= cantidad;
+    }
+
+    public void aumentarStock(int cantidad) {
+        if (cantidad <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
+        }
+
+        stockDisponible += cantidad;
+
+        if (stockDisponible > stockTotal) {
+            stockDisponible = stockTotal;
+        }
+    }
+
+    public void actualizarStock(int nuevoStockTotal) {
+        if (nuevoStockTotal <= 0) {
+            throw new IllegalArgumentException("El stock total debe ser mayor que cero");
+        }
+
+        int prestados = stockTotal - stockDisponible;
+
+        if (nuevoStockTotal < prestados) {
+            throw new IllegalArgumentException(
+                    "El nuevo stock total no puede ser menor que la cantidad actualmente prestada"
+            );
+        }
+
+        this.stockTotal = nuevoStockTotal;
+        this.stockDisponible = nuevoStockTotal - prestados;
     }
 
     @Override
@@ -70,7 +128,8 @@ public class Libro {
                 ", titulo='" + titulo + '\'' +
                 ", autor='" + autor + '\'' +
                 ", categoria='" + categoria + '\'' +
-                ", disponible=" + disponible +
+                ", stockTotal=" + stockTotal +
+                ", stockDisponible=" + stockDisponible +
                 '}';
     }
 }

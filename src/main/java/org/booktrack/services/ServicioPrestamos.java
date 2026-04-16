@@ -19,6 +19,7 @@ public class ServicioPrestamos {
             RepositorioPrestamos repositorioPrestamos,
             RepositorioLibros repositorioLibros,
             CalculadoraMulta calculadoraMulta) {
+
         if (repositorioPrestamos == null) {
             throw new IllegalArgumentException("El repositorio de prestamos es obligatorio");
         }
@@ -28,6 +29,7 @@ public class ServicioPrestamos {
         if (calculadoraMulta == null) {
             throw new IllegalArgumentException("La calculadora de multa es obligatoria");
         }
+
         this.repositorioPrestamos = repositorioPrestamos;
         this.repositorioLibros = repositorioLibros;
         this.calculadoraMulta = calculadoraMulta;
@@ -58,10 +60,11 @@ public class ServicioPrestamos {
 
         if (!prestamo.isDevuelto()) {
             for (ItemPrestamo item : prestamo.getItems()) {
-                item.getLibro().setDisponible(true);
+                item.getLibro().aumentarStock(item.getCantidad());
+
                 Libro libroRepositorio = repositorioLibros.buscarPorId(item.getLibro().getId());
-                if (libroRepositorio != null) {
-                    libroRepositorio.setDisponible(true);
+                if (libroRepositorio != null && libroRepositorio != item.getLibro()) {
+                    libroRepositorio.aumentarStock(item.getCantidad());
                 }
             }
         }
@@ -79,12 +82,15 @@ public class ServicioPrestamos {
         if (prestamo.isDevuelto()) {
             throw new IllegalStateException("No se puede modificar un prestamo devuelto");
         }
-        if (!libro.isDisponible()) {
-            throw new IllegalStateException("El libro no esta disponible");
+        if (cantidad <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
+        }
+        if (cantidad > libro.getStockDisponible()) {
+            throw new IllegalStateException("No hay suficientes ejemplares disponibles");
         }
 
         prestamo.agregarItem(new ItemPrestamo(libro, cantidad));
-        libro.setDisponible(false);
+        libro.reducirStock(cantidad);
     }
 
     public void eliminarLibroDePrestamo(Prestamo prestamo, String idLibro) {
@@ -98,12 +104,67 @@ public class ServicioPrestamos {
             throw new IllegalStateException("No se puede modificar un prestamo devuelto");
         }
 
+        ItemPrestamo itemEncontrado = null;
+
         for (ItemPrestamo item : prestamo.getItems()) {
             if (item.getLibro().getId().equals(idLibro)) {
-                item.getLibro().setDisponible(true);
+                itemEncontrado = item;
+                break;
             }
         }
+
+        if (itemEncontrado == null) {
+            throw new IllegalArgumentException("El libro no esta en el prestamo");
+        }
+
+        itemEncontrado.getLibro().aumentarStock(itemEncontrado.getCantidad());
         prestamo.eliminarItem(idLibro);
+    }
+
+    public void actualizarCantidadLibroEnPrestamo(Prestamo prestamo, String idLibro, int nuevaCantidad) {
+        if (prestamo == null) {
+            throw new IllegalArgumentException("El prestamo es obligatorio");
+        }
+        if (idLibro == null || idLibro.isBlank()) {
+            throw new IllegalArgumentException("El id del libro es obligatorio");
+        }
+        if (nuevaCantidad <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
+        }
+        if (prestamo.isDevuelto()) {
+            throw new IllegalStateException("No se puede modificar un prestamo devuelto");
+        }
+
+        ItemPrestamo itemEncontrado = null;
+        for (ItemPrestamo item : prestamo.getItems()) {
+            if (item.getLibro().getId().equals(idLibro)) {
+                itemEncontrado = item;
+                break;
+            }
+        }
+
+        if (itemEncontrado == null) {
+            throw new IllegalArgumentException("El libro no esta en el prestamo");
+        }
+
+        int cantidadActual = itemEncontrado.getCantidad();
+        if (nuevaCantidad == cantidadActual) {
+            return;
+        }
+
+        Libro libro = itemEncontrado.getLibro();
+        if (nuevaCantidad > cantidadActual) {
+            int extra = nuevaCantidad - cantidadActual;
+            if (extra > libro.getStockDisponible()) {
+                throw new IllegalStateException("No hay suficientes ejemplares disponibles");
+            }
+            libro.reducirStock(extra);
+        } else {
+            int aDevolver = cantidadActual - nuevaCantidad;
+            libro.aumentarStock(aDevolver);
+        }
+
+        itemEncontrado.setCantidad(nuevaCantidad);
     }
 
     public double registrarDevolucion(String idPrestamo, int diasRetraso) {
@@ -116,11 +177,13 @@ public class ServicioPrestamos {
         }
 
         prestamo.marcarComoDevuelto();
+
         for (ItemPrestamo item : prestamo.getItems()) {
-            item.getLibro().setDisponible(true);
+            item.getLibro().aumentarStock(item.getCantidad());
+
             Libro libroRepositorio = repositorioLibros.buscarPorId(item.getLibro().getId());
-            if (libroRepositorio != null) {
-                libroRepositorio.setDisponible(true);
+            if (libroRepositorio != null && libroRepositorio != item.getLibro()) {
+                libroRepositorio.aumentarStock(item.getCantidad());
             }
         }
 

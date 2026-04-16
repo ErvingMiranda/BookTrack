@@ -274,9 +274,9 @@ public class MenuConsola {
         String titulo = leerTextoNoVacio("Titulo: ");
         String autor = leerTextoNoVacio("Autor: ");
         String categoria = leerTextoNoVacio("Categoria: ");
-        boolean disponible = leerBooleano("¿Disponible? (s/n): ");
+        int stock = leerEnteroPositivo("Stock total: ");
 
-        servicioLibros.registrarLibro(new Libro(titulo, autor, categoria, disponible));
+        servicioLibros.registrarLibro(new Libro(titulo, autor, categoria, stock));
         mostrarExito("Libro registrado correctamente.");
         pausar();
     }
@@ -300,7 +300,9 @@ public class MenuConsola {
             System.out.println(formatearCampo("Titulo", libro.getTitulo()));
             System.out.println(formatearCampo("Autor", libro.getAutor()));
             System.out.println(formatearCampo("Categoria", libro.getCategoria()));
-            System.out.println(formatearCampo("Disponible", libro.isDisponible() ? "Si" : "No"));
+            System.out.println(formatearCampo("Stock total", String.valueOf(libro.getStockTotal())));
+            System.out.println(formatearCampo("Disponibles", String.valueOf(libro.getStockDisponible())));
+            System.out.println(formatearCampo("Estado", libro.isDisponible() ? "Disponible" : "Sin existencias"));
             imprimirLinea();
             contador++;
         }
@@ -328,22 +330,9 @@ public class MenuConsola {
         String titulo = leerTextoEditable("Nuevo titulo: ", libro.getTitulo());
         String autor = leerTextoEditable("Nuevo autor: ", libro.getAutor());
         String categoria = leerTextoEditable("Nueva categoria: ", libro.getCategoria());
+        int stockTotal = leerEnteroEditable("Nuevo stock total: ", libro.getStockTotal());
 
-        System.out.print("¿Cambiar disponibilidad? (s/n, Enter = conservar): ");
-        String entradaDisponible = scanner.nextLine().trim().toLowerCase();
-
-        boolean disponible = libro.isDisponible();
-        if (!entradaDisponible.isEmpty()) {
-            if (entradaDisponible.equals("s") || entradaDisponible.equals("si")) {
-                disponible = true;
-            } else if (entradaDisponible.equals("n") || entradaDisponible.equals("no")) {
-                disponible = false;
-            } else {
-                mostrarError("Respuesta invalida. Se conservara la disponibilidad actual.");
-            }
-        }
-
-        servicioLibros.editarLibro(id, titulo, autor, categoria, disponible);
+        servicioLibros.editarLibro(id, titulo, autor, categoria, stockTotal);
         mostrarExito("Libro actualizado correctamente.");
         pausar();
     }
@@ -367,7 +356,8 @@ public class MenuConsola {
         System.out.println(formatearCampo("Titulo", libro.getTitulo()));
         System.out.println(formatearCampo("Autor", libro.getAutor()));
         System.out.println(formatearCampo("Categoria", libro.getCategoria()));
-        System.out.println(formatearCampo("Disponible", libro.isDisponible() ? "Si" : "No"));
+        System.out.println(formatearCampo("Stock total", String.valueOf(libro.getStockTotal())));
+        System.out.println(formatearCampo("Disponibles", String.valueOf(libro.getStockDisponible())));
         imprimirLinea();
 
         if (leerBooleano("¿Desea continuar? (s/n): ")) {
@@ -396,8 +386,12 @@ public class MenuConsola {
             return;
         }
 
-        mostrarUsuariosSinPausa();
-        String idUsuario = leerTextoNoVacio("ID del usuario para el prestamo: ");
+        String idUsuario = leerIdCancelable("ID del usuario para el prestamo");
+        if (idUsuario == null) {
+            mostrarAviso("Solicitud cancelada.");
+            pausar();
+            return;
+        }
         Usuario usuario = servicioUsuarios.buscarUsuario(idUsuario);
 
         if (usuario == null) {
@@ -463,7 +457,12 @@ public class MenuConsola {
         imprimirTitulo("AGREGAR LIBRO AL PRESTAMO");
 
         mostrarLibrosSinPausa();
-        String idLibro = leerTextoNoVacio("ID del libro a agregar: ");
+        String idLibro = leerIdCancelable("ID del libro a agregar");
+        if (idLibro == null) {
+            mostrarAviso("Solicitud cancelada.");
+            pausar();
+            return;
+        }
         Libro libro = servicioLibros.buscarLibro(idLibro);
 
         if (libro == null) {
@@ -472,7 +471,32 @@ public class MenuConsola {
             return;
         }
 
-        int cantidad = leerEntero("Cantidad: ");
+        ItemPrestamo itemExistente = buscarItemEnPrestamo(prestamo, idLibro);
+        if (itemExistente != null) {
+            mostrarAviso("Este libro ya esta agregado en el prestamo.");
+            if (!leerBooleano("Desea editar la cantidad pedida? (s/n): ")) {
+                mostrarAviso("Operacion cancelada.");
+                pausar();
+                return;
+            }
+
+            int maximoPermitido = itemExistente.getCantidad() + libro.getStockDisponible();
+            System.out.println("Cantidad actual en el prestamo: " + itemExistente.getCantidad());
+            System.out.println("Cantidad maxima permitida para este libro: " + maximoPermitido);
+            int nuevaCantidad = leerEnteroEnRango(
+                    "Nueva cantidad a prestar (1-" + maximoPermitido + "): ",
+                    1,
+                    maximoPermitido);
+
+            servicioPrestamos.actualizarCantidadLibroEnPrestamo(prestamo, idLibro, nuevaCantidad);
+            mostrarExito("Cantidad actualizada en el prestamo.");
+            pausar();
+            return;
+        }
+
+        System.out.println("Ejemplares disponibles de este libro: " + libro.getStockDisponible());
+        int cantidad = leerEnteroPositivo("Cantidad a prestar: ");
+
         servicioPrestamos.agregarLibroAPrestamo(prestamo, libro, cantidad);
 
         mostrarExito("Libro agregado al prestamo.");
@@ -490,7 +514,12 @@ public class MenuConsola {
         }
 
         mostrarItemsPrestamo(prestamo);
-        String idLibro = leerTextoNoVacio("ID del libro a eliminar del prestamo: ");
+        String idLibro = leerIdCancelable("ID del libro a eliminar del prestamo");
+        if (idLibro == null) {
+            mostrarAviso("Solicitud cancelada.");
+            pausar();
+            return;
+        }
 
         boolean existe = false;
         for (ItemPrestamo item : prestamo.getItems()) {
@@ -521,6 +550,15 @@ public class MenuConsola {
         for (String idLibro : idsLibros) {
             servicioPrestamos.eliminarLibroDePrestamo(prestamo, idLibro);
         }
+    }
+
+    private ItemPrestamo buscarItemEnPrestamo(Prestamo prestamo, String idLibro) {
+        for (ItemPrestamo item : prestamo.getItems()) {
+            if (item.getLibro().getId().equals(idLibro)) {
+                return item;
+            }
+        }
+        return null;
     }
 
     private void mostrarItemsPrestamo(Prestamo prestamo) {
@@ -628,11 +666,13 @@ public class MenuConsola {
         imprimirTitulo("REPORTES");
 
         int cantidadPrestamos = servicioPrestamos.contarPrestamos();
-        int librosDisponibles = servicioLibros.contarLibrosDisponibles();
+        int titulosDisponibles = servicioLibros.contarTitulosDisponibles();
+        int ejemplaresDisponibles = servicioLibros.contarEjemplaresDisponibles();
         double totalMultas = servicioPrestamos.calcularTotalMultas();
 
         System.out.println(formatearCampo("Prestamos realizados", String.valueOf(cantidadPrestamos)));
-        System.out.println(formatearCampo("Libros disponibles", String.valueOf(librosDisponibles)));
+        System.out.println(formatearCampo("Titulos disponibles", String.valueOf(titulosDisponibles)));
+        System.out.println(formatearCampo("Ejemplares disponibles", String.valueOf(ejemplaresDisponibles)));
         System.out.println(formatearCampo("Total de multas", String.format("US$%.2f", totalMultas)));
         imprimirLinea();
 
@@ -652,10 +692,68 @@ public class MenuConsola {
         }
     }
 
+    private int leerEnteroPositivo(String mensaje) {
+        while (true) {
+            int numero = leerEntero(mensaje);
+            if (numero > 0) {
+                return numero;
+            }
+            mostrarError("Debe ingresar un numero mayor que cero.");
+        }
+    }
+
+    private int leerEnteroEnRango(String mensaje, int minimo, int maximo) {
+        while (true) {
+            int numero = leerEntero(mensaje);
+            if (numero >= minimo && numero <= maximo) {
+                return numero;
+            }
+            mostrarError("Debe ingresar un numero entre " + minimo + " y " + maximo + ".");
+        }
+    }
+
+    private int leerEnteroEditable(String mensaje, int valorActual) {
+        while (true) {
+            System.out.print(mensaje);
+            String entrada = scanner.nextLine().trim();
+
+            if (entrada.isEmpty()) {
+                return valorActual;
+            }
+
+            try {
+                int numero = Integer.parseInt(entrada);
+                if (numero > 0) {
+                    return numero;
+                }
+                mostrarError("Debe ingresar un numero mayor que cero.");
+            } catch (NumberFormatException e) {
+                mostrarError("Debe ingresar un numero entero valido.");
+            }
+        }
+    }
+
     private String leerTextoNoVacio(String mensaje) {
         while (true) {
             System.out.print(mensaje);
             String texto = scanner.nextLine().trim();
+
+            if (!texto.isEmpty()) {
+                return texto;
+            }
+
+            mostrarError("El valor no puede estar vacio.");
+        }
+    }
+
+    private String leerIdCancelable(String mensaje) {
+        while (true) {
+            System.out.print(mensaje + " (escriba - para cancelar solicitud): ");
+            String texto = scanner.nextLine().trim();
+
+            if (texto.equals("-")) {
+                return null;
+            }
 
             if (!texto.isEmpty()) {
                 return texto;
@@ -693,21 +791,6 @@ public class MenuConsola {
         }
     }
 
-    private void mostrarUsuariosSinPausa() {
-        List<Usuario> usuarios = servicioUsuarios.listarUsuarios();
-
-        System.out.println("Usuarios disponibles:");
-        imprimirLinea();
-
-        for (Usuario usuario : usuarios) {
-            System.out.println(formatearCampo("ID", usuario.getId()));
-            System.out.println(formatearCampo("Nombre", usuario.getNombre()));
-            System.out.println(formatearCampo("Telefono", usuario.getTelefono()));
-            System.out.println(formatearCampo("Correo", usuario.getCorreo()));
-            imprimirLinea();
-        }
-    }
-
     private void mostrarLibrosSinPausa() {
         List<Libro> libros = servicioLibros.listarLibros();
 
@@ -719,7 +802,8 @@ public class MenuConsola {
             System.out.println(formatearCampo("Titulo", libro.getTitulo()));
             System.out.println(formatearCampo("Autor", libro.getAutor()));
             System.out.println(formatearCampo("Categoria", libro.getCategoria()));
-            System.out.println(formatearCampo("Disponible", libro.isDisponible() ? "Si" : "No"));
+            System.out.println(formatearCampo("Stock total", String.valueOf(libro.getStockTotal())));
+            System.out.println(formatearCampo("Disponibles", String.valueOf(libro.getStockDisponible())));
             imprimirLinea();
         }
     }

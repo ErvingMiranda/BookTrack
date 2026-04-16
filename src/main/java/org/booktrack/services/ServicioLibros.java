@@ -27,22 +27,23 @@ public class ServicioLibros {
         return repositorioLibros.buscarPorId(id);
     }
 
-    public void editarLibro(String id, String titulo, String autor, String categoria, boolean disponible) {
+    public void editarLibro(String id, String titulo, String autor, String categoria, int stockTotal) {
         Libro libro = repositorioLibros.buscarPorId(id);
         if (libro == null) {
             throw new IllegalArgumentException("Libro no encontrado");
         }
+
         libro.setTitulo(titulo);
         libro.setAutor(autor);
         libro.setCategoria(categoria);
-        libro.setDisponible(disponible);
+        libro.actualizarStock(stockTotal);
     }
 
     public void eliminarLibro(String id) {
         repositorioLibros.eliminar(id);
     }
 
-    public int contarLibrosDisponibles() {
+    public int contarTitulosDisponibles() {
         int disponibles = 0;
         for (Libro libro : repositorioLibros.obtenerTodos()) {
             if (libro.isDisponible()) {
@@ -50,5 +51,13 @@ public class ServicioLibros {
             }
         }
         return disponibles;
+    }
+
+    public int contarEjemplaresDisponibles() {
+        int total = 0;
+        for (Libro libro : repositorioLibros.obtenerTodos()) {
+            total += libro.getStockDisponible();
+        }
+        return total;
     }
 }
