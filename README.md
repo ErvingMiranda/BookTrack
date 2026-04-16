@@ -72,6 +72,40 @@ El sistema debe cumplir con:
 
 ---
 
+## Estructura esperada del proyecto
+
+```text
+src/main/java/org/booktrack/
+├── Main.java
+├── models/
+├── interfaces/
+├── repository/
+├── services/
+├── views/
+└── utils/
+```
+
+## Decisiones de diseño
+
+- Uso de identificadores automáticos mediante `GeneradorId`
+- Almacenamiento en memoria (sin base de datos)
+- Interfaz de usuario mediante consola
+- Separación clara de responsabilidades en capas
+- Uso de interfaces para desacoplar el sistema
+- Cálculo de multas desacoplado mediante interfaz
+- Uso de `ItemPrestamo` para modelar la relación entre préstamos y libros (composición)
+
+## Reglas de implementación
+
+- No incluir lógica de negocio en las clases modelo
+- Los servicios manejan la lógica del sistema
+- Los repositorios gestionan almacenamiento
+- El menú interactúa únicamente con los servicios
+- El cálculo de multas se implementa mediante una interfaz
+- La disponibilidad de los libros debe actualizarse automáticamente
+
+---
+
 ## Aplicación de SOLID
 
 ### Single Responsibility Principle
