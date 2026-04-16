@@ -13,6 +13,8 @@ import org.booktrack.services.ServicioUsuarios;
 
 public class MenuConsola {
 
+    private static final int ANCHO = 70;
+
     private final ServicioUsuarios servicioUsuarios;
     private final ServicioLibros servicioLibros;
     private final ServicioPrestamos servicioPrestamos;
@@ -22,9 +24,11 @@ public class MenuConsola {
             ServicioUsuarios servicioUsuarios,
             ServicioLibros servicioLibros,
             ServicioPrestamos servicioPrestamos) {
+
         if (servicioUsuarios == null || servicioLibros == null || servicioPrestamos == null) {
-            throw new IllegalArgumentException("Los servicios son obligatorios");
+            throw new IllegalArgumentException("Los servicios son obligatorios.");
         }
+
         this.servicioUsuarios = servicioUsuarios;
         this.servicioLibros = servicioLibros;
         this.servicioPrestamos = servicioPrestamos;
@@ -33,260 +37,372 @@ public class MenuConsola {
 
     public void iniciar() {
         boolean salir = false;
+
         while (!salir) {
-            System.out.println("\n=== BookTrack - Menu Principal ===");
+            limpiarPantalla();
+            imprimirTitulo("BOOKTRACK - MENU PRINCIPAL");
             System.out.println("1. Administrar usuarios");
             System.out.println("2. Administrar libros");
             System.out.println("3. Administrar prestamos");
             System.out.println("4. Ver reportes");
             System.out.println("5. Salir");
+            imprimirLinea();
 
             int opcion = leerEntero("Seleccione una opcion: ");
-            switch (opcion) {
-                case 1:
-                    menuUsuarios();
-                    break;
-                case 2:
-                    menuLibros();
-                    break;
-                case 3:
-                    menuPrestamos();
-                    break;
-                case 4:
-                    verReportes();
-                    break;
-                case 5:
-                    salir = true;
-                    System.out.println("Saliendo del sistema...");
-                    break;
-                default:
-                    System.out.println("Opcion invalida.");
+
+            try {
+                switch (opcion) {
+                    case 1 -> menuUsuarios();
+                    case 2 -> menuLibros();
+                    case 3 -> menuPrestamos();
+                    case 4 -> verReportes();
+                    case 5 -> {
+                        salir = true;
+                        mostrarExito("Saliendo del sistema...");
+                    }
+                    default -> mostrarError("Opcion invalida.");
+                }
+            } catch (IllegalArgumentException | IllegalStateException e) {
+                mostrarError(e.getMessage());
+                pausar();
             }
         }
     }
 
     private void menuUsuarios() {
         boolean volver = false;
+
         while (!volver) {
-            System.out.println("\n--- Administrar Usuarios ---");
+            limpiarPantalla();
+            imprimirTitulo("ADMINISTRAR USUARIOS");
             System.out.println("1. Registrar usuario");
             System.out.println("2. Ver usuarios");
             System.out.println("3. Editar usuario");
             System.out.println("4. Eliminar usuario");
             System.out.println("5. Volver");
+            imprimirLinea();
 
             int opcion = leerEntero("Seleccione una opcion: ");
+
             try {
                 switch (opcion) {
-                    case 1:
-                        registrarUsuario();
-                        break;
-                    case 2:
-                        verUsuarios();
-                        break;
-                    case 3:
-                        editarUsuario();
-                        break;
-                    case 4:
-                        eliminarUsuario();
-                        break;
-                    case 5:
-                        volver = true;
-                        break;
-                    default:
-                        System.out.println("Opcion invalida.");
+                    case 1 -> registrarUsuario();
+                    case 2 -> verUsuarios();
+                    case 3 -> editarUsuario();
+                    case 4 -> eliminarUsuario();
+                    case 5 -> volver = true;
+                    default -> {
+                        mostrarError("Opcion invalida.");
+                        pausar();
+                    }
                 }
             } catch (IllegalArgumentException | IllegalStateException e) {
-                System.out.println("Error: " + e.getMessage());
+                mostrarError(e.getMessage());
+                pausar();
             }
         }
     }
 
     private void menuLibros() {
         boolean volver = false;
+
         while (!volver) {
-            System.out.println("\n--- Administrar Libros ---");
+            limpiarPantalla();
+            imprimirTitulo("ADMINISTRAR LIBROS");
             System.out.println("1. Registrar libro");
             System.out.println("2. Ver libros");
             System.out.println("3. Editar libro");
             System.out.println("4. Eliminar libro");
             System.out.println("5. Volver");
+            imprimirLinea();
 
             int opcion = leerEntero("Seleccione una opcion: ");
+
             try {
                 switch (opcion) {
-                    case 1:
-                        registrarLibro();
-                        break;
-                    case 2:
-                        verLibros();
-                        break;
-                    case 3:
-                        editarLibro();
-                        break;
-                    case 4:
-                        eliminarLibro();
-                        break;
-                    case 5:
-                        volver = true;
-                        break;
-                    default:
-                        System.out.println("Opcion invalida.");
+                    case 1 -> registrarLibro();
+                    case 2 -> verLibros();
+                    case 3 -> editarLibro();
+                    case 4 -> eliminarLibro();
+                    case 5 -> volver = true;
+                    default -> {
+                        mostrarError("Opcion invalida.");
+                        pausar();
+                    }
                 }
             } catch (IllegalArgumentException | IllegalStateException e) {
-                System.out.println("Error: " + e.getMessage());
+                mostrarError(e.getMessage());
+                pausar();
             }
         }
     }
 
     private void menuPrestamos() {
         boolean volver = false;
+
         while (!volver) {
-            System.out.println("\n--- Administrar Prestamos ---");
+            limpiarPantalla();
+            imprimirTitulo("ADMINISTRAR PRESTAMOS");
             System.out.println("1. Crear prestamo");
             System.out.println("2. Ver prestamos");
             System.out.println("3. Eliminar prestamo");
             System.out.println("4. Registrar devolucion");
             System.out.println("5. Volver");
+            imprimirLinea();
 
             int opcion = leerEntero("Seleccione una opcion: ");
+
             try {
                 switch (opcion) {
-                    case 1:
-                        crearPrestamo();
-                        break;
-                    case 2:
-                        verPrestamos();
-                        break;
-                    case 3:
-                        eliminarPrestamo();
-                        break;
-                    case 4:
-                        registrarDevolucion();
-                        break;
-                    case 5:
-                        volver = true;
-                        break;
-                    default:
-                        System.out.println("Opcion invalida.");
+                    case 1 -> crearPrestamo();
+                    case 2 -> verPrestamos();
+                    case 3 -> eliminarPrestamo();
+                    case 4 -> registrarDevolucion();
+                    case 5 -> volver = true;
+                    default -> {
+                        mostrarError("Opcion invalida.");
+                        pausar();
+                    }
                 }
             } catch (IllegalArgumentException | IllegalStateException e) {
-                System.out.println("Error: " + e.getMessage());
+                mostrarError(e.getMessage());
+                pausar();
             }
         }
     }
 
     private void registrarUsuario() {
+        limpiarPantalla();
+        imprimirTitulo("REGISTRAR USUARIO");
+
         String nombre = leerTextoNoVacio("Nombre: ");
         String telefono = leerTextoNoVacio("Telefono: ");
         String correo = leerTextoNoVacio("Correo: ");
 
         servicioUsuarios.registrarUsuario(new Usuario(nombre, telefono, correo));
-        System.out.println("Usuario registrado.");
+        mostrarExito("Usuario registrado correctamente.");
+        pausar();
     }
 
     private void verUsuarios() {
+        limpiarPantalla();
+        imprimirTitulo("USUARIOS REGISTRADOS");
+
         List<Usuario> usuarios = servicioUsuarios.listarUsuarios();
         if (usuarios.isEmpty()) {
-            System.out.println("No hay usuarios registrados.");
+            mostrarAviso("No hay usuarios registrados.");
+            pausar();
             return;
         }
 
-        System.out.println("\nUsuarios registrados:");
+        int contador = 1;
         for (Usuario usuario : usuarios) {
-            System.out.println(usuario);
+            System.out.println("Usuario #" + contador);
+            imprimirLinea();
+            System.out.println(formatearCampo("ID", usuario.getId()));
+            System.out.println(formatearCampo("Nombre", usuario.getNombre()));
+            System.out.println(formatearCampo("Telefono", usuario.getTelefono()));
+            System.out.println(formatearCampo("Correo", usuario.getCorreo()));
+            imprimirLinea();
+            contador++;
         }
+
+        System.out.println("Total de usuarios: " + usuarios.size());
+        pausar();
     }
 
     private void editarUsuario() {
-        String id = leerTextoNoVacio("ID de usuario a editar: ");
+        limpiarPantalla();
+        imprimirTitulo("EDITAR USUARIO");
+
+        String id = leerTextoNoVacio("ID del usuario a editar: ");
         Usuario usuario = servicioUsuarios.buscarUsuario(id);
+
         if (usuario == null) {
-            System.out.println("Usuario no encontrado.");
+            mostrarError("Usuario no encontrado.");
+            pausar();
             return;
         }
 
-        String nombre = leerTextoNoVacio("Nuevo nombre: ");
-        String telefono = leerTextoNoVacio("Nuevo telefono: ");
-        String correo = leerTextoNoVacio("Nuevo correo: ");
+        System.out.println("Deje vacio y presione Enter para conservar el valor actual.");
+        imprimirLinea();
+
+        String nombre = leerTextoEditable("Nuevo nombre: ", usuario.getNombre());
+        String telefono = leerTextoEditable("Nuevo telefono: ", usuario.getTelefono());
+        String correo = leerTextoEditable("Nuevo correo: ", usuario.getCorreo());
+
         servicioUsuarios.editarUsuario(id, nombre, telefono, correo);
-        System.out.println("Usuario actualizado.");
+        mostrarExito("Usuario actualizado correctamente.");
+        pausar();
     }
 
     private void eliminarUsuario() {
-        String id = leerTextoNoVacio("ID de usuario a eliminar: ");
-        if (servicioUsuarios.buscarUsuario(id) == null) {
-            System.out.println("Usuario no encontrado.");
+        limpiarPantalla();
+        imprimirTitulo("ELIMINAR USUARIO");
+
+        String id = leerTextoNoVacio("ID del usuario a eliminar: ");
+        Usuario usuario = servicioUsuarios.buscarUsuario(id);
+
+        if (usuario == null) {
+            mostrarError("Usuario no encontrado.");
+            pausar();
             return;
         }
-        servicioUsuarios.eliminarUsuario(id);
-        System.out.println("Usuario eliminado.");
+
+        System.out.println("Se eliminara el siguiente usuario:");
+        imprimirLinea();
+        System.out.println(formatearCampo("ID", usuario.getId()));
+        System.out.println(formatearCampo("Nombre", usuario.getNombre()));
+        System.out.println(formatearCampo("Telefono", usuario.getTelefono()));
+        System.out.println(formatearCampo("Correo", usuario.getCorreo()));
+        imprimirLinea();
+
+        if (leerBooleano("¿Desea continuar? (s/n): ")) {
+            servicioUsuarios.eliminarUsuario(id);
+            mostrarExito("Usuario eliminado correctamente.");
+        } else {
+            mostrarAviso("Operacion cancelada.");
+        }
+
+        pausar();
     }
 
     private void registrarLibro() {
+        limpiarPantalla();
+        imprimirTitulo("REGISTRAR LIBRO");
+
         String titulo = leerTextoNoVacio("Titulo: ");
         String autor = leerTextoNoVacio("Autor: ");
         String categoria = leerTextoNoVacio("Categoria: ");
-        boolean disponible = leerBooleano("Disponible (s/n): ");
+        boolean disponible = leerBooleano("¿Disponible? (s/n): ");
 
         servicioLibros.registrarLibro(new Libro(titulo, autor, categoria, disponible));
-        System.out.println("Libro registrado.");
+        mostrarExito("Libro registrado correctamente.");
+        pausar();
     }
 
     private void verLibros() {
+        limpiarPantalla();
+        imprimirTitulo("LIBROS REGISTRADOS");
+
         List<Libro> libros = servicioLibros.listarLibros();
         if (libros.isEmpty()) {
-            System.out.println("No hay libros registrados.");
+            mostrarAviso("No hay libros registrados.");
+            pausar();
             return;
         }
 
-        System.out.println("\nLibros registrados:");
+        int contador = 1;
         for (Libro libro : libros) {
-            System.out.println(libro);
+            System.out.println("Libro #" + contador);
+            imprimirLinea();
+            System.out.println(formatearCampo("ID", libro.getId()));
+            System.out.println(formatearCampo("Titulo", libro.getTitulo()));
+            System.out.println(formatearCampo("Autor", libro.getAutor()));
+            System.out.println(formatearCampo("Categoria", libro.getCategoria()));
+            System.out.println(formatearCampo("Disponible", libro.isDisponible() ? "Si" : "No"));
+            imprimirLinea();
+            contador++;
         }
+
+        System.out.println("Total de libros: " + libros.size());
+        pausar();
     }
 
     private void editarLibro() {
-        String id = leerTextoNoVacio("ID de libro a editar: ");
+        limpiarPantalla();
+        imprimirTitulo("EDITAR LIBRO");
+
+        String id = leerTextoNoVacio("ID del libro a editar: ");
         Libro libro = servicioLibros.buscarLibro(id);
+
         if (libro == null) {
-            System.out.println("Libro no encontrado.");
+            mostrarError("Libro no encontrado.");
+            pausar();
             return;
         }
 
-        String titulo = leerTextoNoVacio("Nuevo titulo: ");
-        String autor = leerTextoNoVacio("Nuevo autor: ");
-        String categoria = leerTextoNoVacio("Nueva categoria: ");
-        boolean disponible = leerBooleano("Disponible (s/n): ");
+        System.out.println("Deje vacio y presione Enter para conservar el valor actual.");
+        imprimirLinea();
+
+        String titulo = leerTextoEditable("Nuevo titulo: ", libro.getTitulo());
+        String autor = leerTextoEditable("Nuevo autor: ", libro.getAutor());
+        String categoria = leerTextoEditable("Nueva categoria: ", libro.getCategoria());
+
+        System.out.print("¿Cambiar disponibilidad? (s/n, Enter = conservar): ");
+        String entradaDisponible = scanner.nextLine().trim().toLowerCase();
+
+        boolean disponible = libro.isDisponible();
+        if (!entradaDisponible.isEmpty()) {
+            if (entradaDisponible.equals("s") || entradaDisponible.equals("si")) {
+                disponible = true;
+            } else if (entradaDisponible.equals("n") || entradaDisponible.equals("no")) {
+                disponible = false;
+            } else {
+                mostrarError("Respuesta invalida. Se conservara la disponibilidad actual.");
+            }
+        }
+
         servicioLibros.editarLibro(id, titulo, autor, categoria, disponible);
-        System.out.println("Libro actualizado.");
+        mostrarExito("Libro actualizado correctamente.");
+        pausar();
     }
 
     private void eliminarLibro() {
-        String id = leerTextoNoVacio("ID de libro a eliminar: ");
-        if (servicioLibros.buscarLibro(id) == null) {
-            System.out.println("Libro no encontrado.");
+        limpiarPantalla();
+        imprimirTitulo("ELIMINAR LIBRO");
+
+        String id = leerTextoNoVacio("ID del libro a eliminar: ");
+        Libro libro = servicioLibros.buscarLibro(id);
+
+        if (libro == null) {
+            mostrarError("Libro no encontrado.");
+            pausar();
             return;
         }
-        servicioLibros.eliminarLibro(id);
-        System.out.println("Libro eliminado.");
+
+        System.out.println("Se eliminara el siguiente libro:");
+        imprimirLinea();
+        System.out.println(formatearCampo("ID", libro.getId()));
+        System.out.println(formatearCampo("Titulo", libro.getTitulo()));
+        System.out.println(formatearCampo("Autor", libro.getAutor()));
+        System.out.println(formatearCampo("Categoria", libro.getCategoria()));
+        System.out.println(formatearCampo("Disponible", libro.isDisponible() ? "Si" : "No"));
+        imprimirLinea();
+
+        if (leerBooleano("¿Desea continuar? (s/n): ")) {
+            servicioLibros.eliminarLibro(id);
+            mostrarExito("Libro eliminado correctamente.");
+        } else {
+            mostrarAviso("Operacion cancelada.");
+        }
+
+        pausar();
     }
 
     private void crearPrestamo() {
+        limpiarPantalla();
+        imprimirTitulo("CREAR PRESTAMO");
+
         if (servicioUsuarios.listarUsuarios().isEmpty()) {
-            System.out.println("No hay usuarios registrados. Registre usuarios antes de crear prestamos.");
-            return;
-        }
-        if (servicioLibros.listarLibros().isEmpty()) {
-            System.out.println("No hay libros registrados. Registre libros antes de crear prestamos.");
+            mostrarAviso("No hay usuarios registrados. Registre usuarios antes de crear prestamos.");
+            pausar();
             return;
         }
 
-        verUsuarios();
+        if (servicioLibros.listarLibros().isEmpty()) {
+            mostrarAviso("No hay libros registrados. Registre libros antes de crear prestamos.");
+            pausar();
+            return;
+        }
+
+        mostrarUsuariosSinPausa();
         String idUsuario = leerTextoNoVacio("ID del usuario para el prestamo: ");
         Usuario usuario = servicioUsuarios.buscarUsuario(idUsuario);
+
         if (usuario == null) {
-            System.out.println("Usuario no encontrado.");
+            mostrarError("Usuario no encontrado.");
+            pausar();
             return;
         }
 
@@ -294,66 +410,88 @@ public class MenuConsola {
         boolean finalizar = false;
 
         while (!finalizar) {
-            System.out.println("\n--- Edicion de prestamo en curso ---");
+            limpiarPantalla();
+            imprimirTitulo("EDICION DE PRESTAMO");
+            System.out.println(formatearCampo("Prestamo ID", prestamo.getId()));
+            System.out.println(formatearCampo("Usuario", usuario.getNombre()));
+            System.out.println(formatearCampo("Usuario ID", usuario.getId()));
+            imprimirLinea();
+
             System.out.println("1. Agregar libro");
             System.out.println("2. Eliminar libro");
             System.out.println("3. Ver items del prestamo");
             System.out.println("4. Finalizar prestamo");
             System.out.println("5. Cancelar prestamo");
+            imprimirLinea();
 
             int opcion = leerEntero("Seleccione una opcion: ");
+
             switch (opcion) {
-                case 1:
-                    verLibros();
-                    agregarLibroAPrestamo(prestamo);
-                    break;
-                case 2:
-                    eliminarLibroDePrestamo(prestamo);
-                    break;
-                case 3:
+                case 1 -> agregarLibroAPrestamo(prestamo);
+                case 2 -> eliminarLibroDePrestamo(prestamo);
+                case 3 -> {
                     mostrarItemsPrestamo(prestamo);
-                    break;
-                case 4:
+                    pausar();
+                }
+                case 4 -> {
                     if (prestamo.getItems().isEmpty()) {
-                        System.out.println("El prestamo debe tener al menos un libro.");
+                        mostrarError("El prestamo debe tener al menos un libro.");
+                        pausar();
                     } else {
                         servicioPrestamos.registrarPrestamo(prestamo);
-                        System.out.println("Prestamo registrado con ID: " + prestamo.getId());
+                        mostrarExito("Prestamo registrado con ID: " + prestamo.getId());
+                        pausar();
                         finalizar = true;
                     }
-                    break;
-                case 5:
+                }
+                case 5 -> {
                     cancelarPrestamo(prestamo);
-                    System.out.println("Prestamo cancelado.");
+                    mostrarAviso("Prestamo cancelado.");
+                    pausar();
                     finalizar = true;
-                    break;
-                default:
-                    System.out.println("Opcion invalida.");
+                }
+                default -> {
+                    mostrarError("Opcion invalida.");
+                    pausar();
+                }
             }
         }
     }
 
     private void agregarLibroAPrestamo(Prestamo prestamo) {
+        limpiarPantalla();
+        imprimirTitulo("AGREGAR LIBRO AL PRESTAMO");
+
+        mostrarLibrosSinPausa();
         String idLibro = leerTextoNoVacio("ID del libro a agregar: ");
         Libro libro = servicioLibros.buscarLibro(idLibro);
+
         if (libro == null) {
-            System.out.println("Libro no encontrado.");
+            mostrarError("Libro no encontrado.");
+            pausar();
             return;
         }
 
         int cantidad = leerEntero("Cantidad: ");
         servicioPrestamos.agregarLibroAPrestamo(prestamo, libro, cantidad);
-        System.out.println("Libro agregado al prestamo.");
+
+        mostrarExito("Libro agregado al prestamo.");
+        pausar();
     }
 
     private void eliminarLibroDePrestamo(Prestamo prestamo) {
+        limpiarPantalla();
+        imprimirTitulo("ELIMINAR LIBRO DEL PRESTAMO");
+
         if (prestamo.getItems().isEmpty()) {
-            System.out.println("No hay libros en el prestamo.");
+            mostrarAviso("No hay libros en el prestamo.");
+            pausar();
             return;
         }
 
         mostrarItemsPrestamo(prestamo);
         String idLibro = leerTextoNoVacio("ID del libro a eliminar del prestamo: ");
+
         boolean existe = false;
         for (ItemPrestamo item : prestamo.getItems()) {
             if (item.getLibro().getId().equals(idLibro)) {
@@ -361,17 +499,21 @@ public class MenuConsola {
                 break;
             }
         }
+
         if (!existe) {
-            System.out.println("El libro no esta en el prestamo.");
+            mostrarError("El libro no esta en el prestamo.");
+            pausar();
             return;
         }
 
         servicioPrestamos.eliminarLibroDePrestamo(prestamo, idLibro);
-        System.out.println("Libro eliminado del prestamo.");
+        mostrarExito("Libro eliminado del prestamo.");
+        pausar();
     }
 
     private void cancelarPrestamo(Prestamo prestamo) {
         List<String> idsLibros = new ArrayList<>();
+
         for (ItemPrestamo item : prestamo.getItems()) {
             idsLibros.add(item.getLibro().getId());
         }
@@ -382,66 +524,130 @@ public class MenuConsola {
     }
 
     private void mostrarItemsPrestamo(Prestamo prestamo) {
+        System.out.println("Items del prestamo:");
+        imprimirLinea();
+
         if (prestamo.getItems().isEmpty()) {
             System.out.println("No hay items en el prestamo.");
+            imprimirLinea();
             return;
         }
 
-        System.out.println("Items del prestamo:");
+        int contador = 1;
         for (ItemPrestamo item : prestamo.getItems()) {
-            System.out.println(item);
+            System.out.println("Item #" + contador);
+            System.out.println(formatearCampo("Libro ID", item.getLibro().getId()));
+            System.out.println(formatearCampo("Titulo", item.getLibro().getTitulo()));
+            System.out.println(formatearCampo("Cantidad", String.valueOf(item.getCantidad())));
+            imprimirLinea();
+            contador++;
         }
     }
 
     private void verPrestamos() {
+        limpiarPantalla();
+        imprimirTitulo("PRESTAMOS REGISTRADOS");
+
         List<Prestamo> prestamos = servicioPrestamos.listarPrestamos();
         if (prestamos.isEmpty()) {
-            System.out.println("No hay prestamos registrados.");
+            mostrarAviso("No hay prestamos registrados.");
+            pausar();
             return;
         }
 
-        System.out.println("\nPrestamos registrados:");
+        int contador = 1;
         for (Prestamo prestamo : prestamos) {
-            System.out.println(prestamo);
+            System.out.println("Prestamo #" + contador);
+            imprimirLinea();
+            System.out.println(formatearCampo("ID", prestamo.getId()));
+            System.out.println(formatearCampo("Usuario ID", prestamo.getUsuario().getId()));
+            System.out.println(formatearCampo("Usuario", prestamo.getUsuario().getNombre()));
+            System.out.println(formatearCampo("Cantidad items", String.valueOf(prestamo.getItems().size())));
+            System.out.println(formatearCampo("Devuelto", prestamo.isDevuelto() ? "Si" : "No"));
+            imprimirLinea();
+
+            if (!prestamo.getItems().isEmpty()) {
+                for (ItemPrestamo item : prestamo.getItems()) {
+                    System.out.println("  - " + item.getLibro().getTitulo() + " | Cantidad: " + item.getCantidad());
+                }
+                imprimirLinea();
+            }
+
+            contador++;
         }
+
+        System.out.println("Total de prestamos: " + prestamos.size());
+        pausar();
     }
 
     private void eliminarPrestamo() {
+        limpiarPantalla();
+        imprimirTitulo("ELIMINAR PRESTAMO");
+
         String id = leerTextoNoVacio("ID de prestamo a eliminar: ");
-        if (servicioPrestamos.buscarPrestamo(id) == null) {
-            System.out.println("Prestamo no encontrado.");
+        Prestamo prestamo = servicioPrestamos.buscarPrestamo(id);
+
+        if (prestamo == null) {
+            mostrarError("Prestamo no encontrado.");
+            pausar();
             return;
         }
-        servicioPrestamos.eliminarPrestamo(id);
-        System.out.println("Prestamo eliminado.");
+
+        System.out.println("Se eliminara el siguiente prestamo:");
+        imprimirLinea();
+        System.out.println(formatearCampo("ID", prestamo.getId()));
+        System.out.println(formatearCampo("Usuario", prestamo.getUsuario().getNombre()));
+        System.out.println(formatearCampo("Devuelto", prestamo.isDevuelto() ? "Si" : "No"));
+        System.out.println(formatearCampo("Cantidad items", String.valueOf(prestamo.getItems().size())));
+        imprimirLinea();
+
+        if (leerBooleano("¿Desea continuar? (s/n): ")) {
+            servicioPrestamos.eliminarPrestamo(id);
+            mostrarExito("Prestamo eliminado correctamente.");
+        } else {
+            mostrarAviso("Operacion cancelada.");
+        }
+
+        pausar();
     }
 
     private void registrarDevolucion() {
+        limpiarPantalla();
+        imprimirTitulo("REGISTRAR DEVOLUCION");
+
         String idPrestamo = leerTextoNoVacio("ID del prestamo: ");
         int diasRetraso = leerEntero("Dias de retraso: ");
+
         double multa = servicioPrestamos.registrarDevolucion(idPrestamo, diasRetraso);
-        System.out.printf("Multa calculada: US$%.2f%n", multa);
+        mostrarExito(String.format("Devolucion registrada. Multa calculada: US$%.2f", multa));
+        pausar();
     }
 
     private void verReportes() {
+        limpiarPantalla();
+        imprimirTitulo("REPORTES");
+
         int cantidadPrestamos = servicioPrestamos.contarPrestamos();
         int librosDisponibles = servicioLibros.contarLibrosDisponibles();
         double totalMultas = servicioPrestamos.calcularTotalMultas();
 
-        System.out.println("\n--- Reportes ---");
-        System.out.println("Cantidad de prestamos realizados: " + cantidadPrestamos);
-        System.out.println("Cantidad de libros disponibles: " + librosDisponibles);
-        System.out.printf("Total de multas generadas: US$%.2f%n", totalMultas);
+        System.out.println(formatearCampo("Prestamos realizados", String.valueOf(cantidadPrestamos)));
+        System.out.println(formatearCampo("Libros disponibles", String.valueOf(librosDisponibles)));
+        System.out.println(formatearCampo("Total de multas", String.format("US$%.2f", totalMultas)));
+        imprimirLinea();
+
+        pausar();
     }
 
     private int leerEntero(String mensaje) {
         while (true) {
             System.out.print(mensaje);
-            String entrada = scanner.nextLine();
+            String entrada = scanner.nextLine().trim();
+
             try {
-                return Integer.parseInt(entrada.trim());
+                return Integer.parseInt(entrada);
             } catch (NumberFormatException e) {
-                System.out.println("Entrada invalida. Debe ingresar un numero entero.");
+                mostrarError("Debe ingresar un numero entero.");
             }
         }
     }
@@ -450,23 +656,118 @@ public class MenuConsola {
         while (true) {
             System.out.print(mensaje);
             String texto = scanner.nextLine().trim();
+
             if (!texto.isEmpty()) {
                 return texto;
             }
-            System.out.println("El valor no puede estar vacio.");
+
+            mostrarError("El valor no puede estar vacio.");
         }
+    }
+
+    private String leerTextoEditable(String mensaje, String valorActual) {
+        System.out.print(mensaje);
+        String texto = scanner.nextLine().trim();
+
+        if (texto.isEmpty()) {
+            return valorActual;
+        }
+
+        return texto;
     }
 
     private boolean leerBooleano(String mensaje) {
         while (true) {
-            String respuesta = leerTextoNoVacio(mensaje).toLowerCase();
-            if ("s".equals(respuesta) || "si".equals(respuesta)) {
+            System.out.print(mensaje);
+            String respuesta = scanner.nextLine().trim().toLowerCase();
+
+            if (respuesta.equals("s") || respuesta.equals("si")) {
                 return true;
             }
-            if ("n".equals(respuesta) || "no".equals(respuesta)) {
+
+            if (respuesta.equals("n") || respuesta.equals("no")) {
                 return false;
             }
-            System.out.println("Respuesta invalida. Use 's'/'si' o 'n'/'no'.");
+
+            mostrarError("Respuesta invalida. Use s/si o n/no.");
+        }
+    }
+
+    private void mostrarUsuariosSinPausa() {
+        List<Usuario> usuarios = servicioUsuarios.listarUsuarios();
+
+        System.out.println("Usuarios disponibles:");
+        imprimirLinea();
+
+        for (Usuario usuario : usuarios) {
+            System.out.println(formatearCampo("ID", usuario.getId()));
+            System.out.println(formatearCampo("Nombre", usuario.getNombre()));
+            System.out.println(formatearCampo("Telefono", usuario.getTelefono()));
+            System.out.println(formatearCampo("Correo", usuario.getCorreo()));
+            imprimirLinea();
+        }
+    }
+
+    private void mostrarLibrosSinPausa() {
+        List<Libro> libros = servicioLibros.listarLibros();
+
+        System.out.println("Libros disponibles:");
+        imprimirLinea();
+
+        for (Libro libro : libros) {
+            System.out.println(formatearCampo("ID", libro.getId()));
+            System.out.println(formatearCampo("Titulo", libro.getTitulo()));
+            System.out.println(formatearCampo("Autor", libro.getAutor()));
+            System.out.println(formatearCampo("Categoria", libro.getCategoria()));
+            System.out.println(formatearCampo("Disponible", libro.isDisponible() ? "Si" : "No"));
+            imprimirLinea();
+        }
+    }
+
+    private void imprimirTitulo(String titulo) {
+        System.out.println("=".repeat(ANCHO));
+        System.out.println(centrarTexto(titulo));
+        System.out.println("=".repeat(ANCHO));
+    }
+
+    private void imprimirLinea() {
+        System.out.println("-".repeat(ANCHO));
+    }
+
+    private String centrarTexto(String texto) {
+        if (texto.length() >= ANCHO) {
+            return texto;
+        }
+
+        int espacios = (ANCHO - texto.length()) / 2;
+        return " ".repeat(espacios) + texto;
+    }
+
+    private String formatearCampo(String etiqueta, String valor) {
+        return String.format("%-16s: %s", etiqueta, valor);
+    }
+
+    private void mostrarExito(String mensaje) {
+        System.out.println("[OK] " + mensaje);
+    }
+
+    private void mostrarError(String mensaje) {
+        System.out.println("[ERROR] " + mensaje);
+    }
+
+    private void mostrarAviso(String mensaje) {
+        System.out.println("[INFO] " + mensaje);
+    }
+
+    private void pausar() {
+        System.out.println();
+        System.out.print("Presione Enter para continuar...");
+        scanner.nextLine();
+    }
+
+    private void limpiarPantalla() {
+        for (int i = 0; i < 30; i++) {
+            System.out.println();
         }
     }
 }
